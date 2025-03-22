@@ -1,5 +1,6 @@
+// src/components/BranchCard.tsx
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 type Props = {
   branch: {
@@ -9,17 +10,18 @@ type Props = {
     city: string;
     distance?: number;
   };
+  onPress?: () => void;
 };
 
-const BranchCard = ({ branch }: Props) => {
+const BranchCard = ({ branch, onPress }: Props) => {
   return (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={onPress} style={styles.card}>
       <Text style={styles.title}>{branch.name}</Text>
       <Text style={styles.text}>📍 {branch.address}, {branch.city}</Text>
       {branch.distance !== undefined && (
         <Text style={styles.text}>🧭 Distance: {branch.distance} km</Text>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 
