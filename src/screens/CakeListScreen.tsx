@@ -106,10 +106,17 @@ const CakeListScreen = () => {
 const styles = StyleSheet.create({
   container: { padding: 16 },
   card: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#fff',
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#eee',
   },
   title: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
   price: { fontWeight: 'bold', marginRight: 12 },
