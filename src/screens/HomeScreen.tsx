@@ -1,7 +1,7 @@
-// src/screens/HomeScreen.tsx
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
 import { searchPostalCode } from '../api/api';
+import BranchCard from '../components/BranchCard';
 
 const HomeScreen = () => {
   const [postalCode, setPostalCode] = useState('');
@@ -11,10 +11,12 @@ const HomeScreen = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const token = 'your_test_token_here'; // بعداً با JWT واقعی جایگزین می‌کنیم
+      const token = 'your_test_token_here'; // بعداً JWT واقعی جایگزین می‌کنیم
       const response = await searchPostalCode(postalCode, token);
+      console.log('📦 API Response:', response); // برای دیباگ
       setResult(response);
     } catch (error) {
+      console.error('❌ Error:', error);
       setResult({ message: 'Error occurred' });
     } finally {
       setLoading(false);
@@ -31,9 +33,14 @@ const HomeScreen = () => {
         placeholder="e.g. 5038AA"
       />
       <Button title="Search" onPress={handleSearch} />
-      {loading ? <Text>Loading...</Text> : result && (
-        <Text style={styles.result}>{JSON.stringify(result, null, 2)}</Text>
-      )}
+      
+      {loading ? (
+        <Text>Loading...</Text>
+      ) : result?.branches?.length ? (
+        <BranchCard branch={result.branches[0]} />
+      ) : result?.message ? (
+        <Text style={styles.result}>{result.message}</Text>
+      ) : null}
     </View>
   );
 };
