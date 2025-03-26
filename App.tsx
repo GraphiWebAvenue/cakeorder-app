@@ -6,27 +6,26 @@ import CakeListScreen from './src/screens/CakeListScreen';
 import CakeDetailsScreen from './src/screens/CakeDetailsScreen';
 import CartScreen from './src/screens/CartScreen';
 import DeliveryMethodScreen from './src/screens/DeliveryMethodScreen';
-
-
-
-
 import { CartProvider } from './src/context/CartContext';
+import { UserProvider } from './src/context/UserContext';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    <CartProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="CakeList" component={CakeListScreen} options={{ title: 'Available Cakes' }} />
-          <Stack.Screen name="CakeDetails" component={CakeDetailsScreen} options={{ title: 'Cake Details' }} />
-          <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'Your Cart' }} />
-          <Stack.Screen name="DeliveryMethod" component={DeliveryMethodScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </CartProvider>
+    <UserProvider>
+      <CartProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="CakeList" component={CakeListScreen} options={{ title: 'Available Cakes' }} />
+            <Stack.Screen name="CakeDetails" component={CakeDetailsScreen} />
+            <Stack.Screen name="Cart" component={CartScreen} />
+            <Stack.Screen name="DeliveryMethod" component={DeliveryMethodScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </CartProvider>
+    </UserProvider>
   );
 };
 
