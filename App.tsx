@@ -18,7 +18,7 @@ const App = () => {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="CakeList" component={CakeListScreen} options={{ title: 'Available Cakes' }} />
           <Stack.Screen name="CakeDetails" component={CakeDetailsScreen} options={{ title: 'Cake Details' }} />
-          <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'Your Cart' }} /> {/* ✅ جدید */}
+          <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'Your Cart' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </CartProvider>

@@ -31,8 +31,10 @@ const CartScreen = () => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text style={styles.text}>{item.name} ({item.portion}) x{item.quantity}</Text>
-            <Text style={styles.text}>€{(item.price * item.quantity).toFixed(2)}</Text>
+            <Text style={styles.text}>{item.name} ({item.portion})</Text>
+            <Text style={styles.text}>
+              {item.quantity} × €{item.price.toFixed(2)} = €{(item.price * item.quantity).toFixed(2)}
+            </Text>
             <TouchableOpacity onPress={() => removeFromCart(item.id)}>
               <Text style={styles.remove}>❌ Remove</Text>
             </TouchableOpacity>
