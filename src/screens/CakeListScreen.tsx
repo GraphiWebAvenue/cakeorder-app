@@ -6,12 +6,14 @@ import {
   StyleSheet,
   ActivityIndicator,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 
 type RootStackParamList = {
   CakeList: { branchId: number };
+  CakeDetails: { cake: Cake };
 };
 
 type Cake = {
@@ -28,6 +30,7 @@ type Cake = {
 const CakeListScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'CakeList'>>();
   const { branchId } = route.params;
+  const navigation = useNavigation();
 
   const [cakes, setCakes] = useState<Cake[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -80,23 +83,25 @@ const CakeListScreen = () => {
         data={cakes}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            {item.image_url && (
-              <Image source={{ uri: item.image_url }} style={styles.image} />
-            )}
-            <Text style={styles.title}>{item.name}</Text>
-            <Text>{item.description}</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('CakeDetails', { cake: item })}>
+            <View style={styles.card}>
+              {item.image_url && (
+                <Image source={{ uri: item.image_url }} style={styles.image} />
+              )}
+              <Text style={styles.title}>{item.name}</Text>
+              <Text>{item.description}</Text>
 
-            {item.is_per_slice_enabled === 1 ? (
-              <View style={styles.priceRow}>
-                <Text style={styles.price}>🍰 Slice: €{item.per_slice_price.toFixed(2)}</Text>
-                <Text style={styles.price}>🌓 Half: €{item.half_price.toFixed(2)}</Text>
-                <Text style={styles.price}>🎂 Whole: €{item.base_price.toFixed(2)}</Text>
-              </View>
-            ) : (
-              <Text style={styles.price}>🎂 Price: €{item.base_price.toFixed(2)}</Text>
-            )}
-          </View>
+              {item.is_per_slice_enabled === 1 ? (
+                <View style={styles.priceRow}>
+                  <Text style={styles.price}>🍰 Slice: €{(item.per_slice_price ?? 0).toFixed(2)}</Text>
+                  <Text style={styles.price}>🌓 Half: €{(item.half_price ?? 0).toFixed(2)}</Text>
+                  <Text style={styles.price}>🎂 Whole: €{(item.base_price ?? 0).toFixed(2)}</Text>
+                </View>
+              ) : (
+                <Text style={styles.price}>🎂 Price: €{(item.base_price ?? 0).toFixed(2)}</Text>
+              )}
+            </View>
+          </TouchableOpacity>
         )}
       />
     </View>

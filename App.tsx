@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
 import CakeListScreen from './src/screens/CakeListScreen';
+import CakeDetailsScreen from './src/screens/CakeDetailsScreen'; // ✅ اضافه کن
 
 const Stack = createNativeStackNavigator();
 
@@ -13,6 +14,7 @@ const App = () => {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="CakeList" component={CakeListScreen} options={{ title: 'Available Cakes' }} />
+        <Stack.Screen name="CakeDetails" component={CakeDetailsScreen} options={{ title: 'Cake Details' }} /> {/* ✅ اینم اضافه کن */}
       </Stack.Navigator>
     </NavigationContainer>
   );
