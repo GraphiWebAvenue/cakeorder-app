@@ -6,6 +6,7 @@ import CakeListScreen from './src/screens/CakeListScreen';
 import CakeDetailsScreen from './src/screens/CakeDetailsScreen';
 import CartScreen from './src/screens/CartScreen';
 import DeliveryMethodScreen from './src/screens/DeliveryMethodScreen';
+import OrderScreen from './src/screens/OrderScreen'; // ✅ اضافه شد
 import { CartProvider } from './src/context/CartContext';
 import { UserProvider } from './src/context/UserContext';
 
@@ -22,6 +23,7 @@ const App = () => {
             <Stack.Screen name="CakeDetails" component={CakeDetailsScreen} />
             <Stack.Screen name="Cart" component={CartScreen} />
             <Stack.Screen name="DeliveryMethod" component={DeliveryMethodScreen} />
+            <Stack.Screen name="Order" component={OrderScreen} /> {/* ✅ اضافه شد */}
           </Stack.Navigator>
         </NavigationContainer>
       </CartProvider>
