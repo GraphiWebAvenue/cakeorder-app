@@ -1,15 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// نوع داده‌هایی که در context داریم
-interface UserContextType {
+type UserContextType = {
   postalCode: string;
   setPostalCode: (code: string) => void;
-}
+};
 
-// مقدار پیش‌فرض
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Provider که دور App قرار می‌گیره
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [postalCode, setPostalCode] = useState('');
 
@@ -20,7 +17,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook برای استفاده از context راحت‌تر
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {

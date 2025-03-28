@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useUser } from '../context/UserContext';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { searchPostalCode } from '../api/api';
 import BranchCard from '../components/BranchCard';
@@ -11,16 +18,22 @@ type RootStackParamList = {
 };
 
 const HomeScreen = () => {
-  const [postalCode, setPostalCode] = useState('');
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { setPostalCode } = useUser();
+  const [postalCode, setPostalCodeInput] = useState('');
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
   const handleSearch = async () => {
+    if (!postalCode.trim()) {
+      alert('Please enter a valid postal code.');
+      return;
+    }
+
+    setPostalCode(postalCode.trim());
     setLoading(true);
     try {
-      const token = 'your_test_token_here'; // بعداً JWT اضافه می‌کنیم
+      const token = 'your_test_token_here';
       const response = await searchPostalCode(postalCode.toUpperCase(), token);
       console.log('📦 API Response:', response);
       setResult(response);
@@ -41,9 +54,9 @@ const HomeScreen = () => {
       <Text style={styles.label}>Enter your postal code:</Text>
       <TextInput
         style={styles.input}
+        placeholder="e.g. 5041DS"
         value={postalCode}
-        onChangeText={setPostalCode}
-        placeholder="e.g. 5038AA"
+        onChangeText={setPostalCodeInput}
       />
       <Button title="Search" onPress={handleSearch} />
 
@@ -56,8 +69,8 @@ const HomeScreen = () => {
         />
       ) : result?.message ? (
         <Text style={styles.result}>
-          {result.message === "No branches found for this postal code."
-            ? "هیچ شعبه‌ای برای این کد پستی پیدا نشد."
+          {result.message === 'No branches found for this postal code.'
+            ? 'هیچ شعبه‌ای برای این کد پستی پیدا نشد.'
             : result.message}
         </Text>
       ) : null}
@@ -66,8 +79,14 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20, marginTop: 100 },
-  label: { fontSize: 16, marginBottom: 8 },
+  container: {
+    padding: 20,
+    marginTop: 100,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#999',
