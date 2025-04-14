@@ -1,15 +1,30 @@
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, Button, Alert } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
-import { UserContext } from '../context/UserContext';
+import { UserContextType, UserContext } from '../context/UserContext';
 import axios from 'axios';
 
+type RootStackParamList = {
+  Order: {
+    method: 'pickup' | 'delivery';
+    delivery_date?: string;
+    delivery_time?: string;
+    postal_code?: string;
+    province?: string;
+    city?: string;
+    street_address?: string;
+    house_number?: string;
+    extra_details?: string;
+  };
+  Home: undefined;
+};
+
 const OrderScreen = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
+  const route = useRoute<RouteProp<RootStackParamList, 'Order'>>();
+  const navigation = useNavigation<any>();
   const { cartItems, clearCart, totalPrice } = useCart();
-  const { user } = useContext(UserContext);
+  const { user } = useContext(UserContext) as UserContextType;
 
   const {
     method,
@@ -21,7 +36,7 @@ const OrderScreen = () => {
     street_address,
     house_number,
     extra_details,
-  } = route.params || {};
+  } = route.params;
 
   const handlePlaceOrder = async () => {
     if (!user || !user.id) {

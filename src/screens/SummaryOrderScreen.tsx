@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,24 +8,29 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
 import axios from 'axios';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+// ⛳ تعریف RootStackParamList
+type RootStackParamList = {
+  OrderComplete: { trackingCode: string };
+};
+
+// ⛳ تایپ navigation و route
+type SummaryRouteProp = RouteProp<Record<string, object | undefined>, string>;
+type SummaryNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const SummaryOrderScreen = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
+  const route = useRoute<SummaryRouteProp>();
+  const navigation = useNavigation<SummaryNavigationProp>();
   const { user } = useUser();
   const [selectedGateway, setSelectedGateway] = useState('paypal');
 
-  // 🧪 log everything
-  useEffect(() => {
-    console.log('🔍 route.params:', route.params);
-  }, [route.params]);
-
   const {
     items = [],
-    delivery_method = '', // fallback empty
+    delivery_method = '',
     delivery_date,
     delivery_time,
     postal_code,
@@ -36,7 +41,7 @@ const SummaryOrderScreen = () => {
     extra_details,
     total_price,
     branch_id,
-  } = route.params || {};
+  }: any = route.params || {};
 
   const handleConfirmOrder = async () => {
     if (!delivery_method) {
@@ -46,7 +51,7 @@ const SummaryOrderScreen = () => {
 
     try {
       const response = await axios.post('https://cakeorder.shop/api/orders.php', {
-        user_id: user.id,
+        user_id: user?.id,
         items,
         branch_id,
         delivery_method,
@@ -62,7 +67,9 @@ const SummaryOrderScreen = () => {
       });
 
       if (response.data.success) {
-        navigation.navigate('OrderComplete', { trackingCode: response.data.tracking_code });
+        navigation.navigate('OrderComplete', {
+          trackingCode: response.data.tracking_code,
+        });
       } else {
         Alert.alert('Error', response.data.message || 'Failed to place order.');
       }
@@ -71,14 +78,17 @@ const SummaryOrderScreen = () => {
     }
   };
 
-  const calculatedTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const calculatedTotal = items.reduce(
+    (sum: number, item: any) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Order Summary</Text>
 
       {user && (
-        <View style={{ marginBottom: 10 }}>
+        <View style={styles.userInfoBox}>
           <Text style={styles.userInfo}>
             👤 Customer: {user.name} ({user.email})
           </Text>
@@ -88,7 +98,7 @@ const SummaryOrderScreen = () => {
 
       <Text style={styles.sectionTitle}>🧁 Order Items</Text>
       {items.length > 0 ? (
-        items.map((item, index) => (
+        items.map((item: any, index: number) => (
           <View key={index} style={styles.itemRow}>
             <Text style={styles.itemText}>
               {item.name} × {item.quantity} = €{(item.price * item.quantity).toFixed(2)}
@@ -126,8 +136,15 @@ const SummaryOrderScreen = () => {
           style={styles.radioOption}
           onPress={() => setSelectedGateway('paypal')}
         >
-          <View style={[styles.radioCircle, selectedGateway === 'paypal' && styles.radioSelected]} />
-          <Image source={{ uri: 'https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg' }} style={styles.logo} />
+          <View
+            style={[styles.radioCircle, selectedGateway === 'paypal' && styles.radioSelected]}
+          />
+          <Image
+            source={{
+              uri: 'https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg',
+            }}
+            style={styles.logo}
+          />
           <Text>PayPal</Text>
         </TouchableOpacity>
 
@@ -135,13 +152,20 @@ const SummaryOrderScreen = () => {
           style={styles.radioOption}
           onPress={() => setSelectedGateway('klarna')}
         >
-          <View style={[styles.radioCircle, selectedGateway === 'klarna' && styles.radioSelected]} />
-          <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/4/40/Klarna_Payment_Badge.svg' }} style={styles.logo} />
+          <View
+            style={[styles.radioCircle, selectedGateway === 'klarna' && styles.radioSelected]}
+          />
+          <Image
+            source={{
+              uri: 'https://upload.wikimedia.org/wikipedia/commons/4/40/Klarna_Payment_Badge.svg',
+            }}
+            style={styles.logo}
+          />
           <Text>Klarna</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={{ marginTop: 20 }}>
+      <View style={styles.confirmButton}>
         <Button title="Confirm Order" onPress={handleConfirmOrder} />
       </View>
     </View>
@@ -152,6 +176,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#fff' },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16 },
   sectionTitle: { fontSize: 18, fontWeight: '600', marginTop: 16, marginBottom: 8 },
+  userInfoBox: { marginBottom: 10 },
   userInfo: { fontSize: 16, marginBottom: 4, color: '#1b5e20' },
   itemRow: { marginBottom: 6 },
   itemText: { fontSize: 16 },
@@ -174,6 +199,9 @@ const styles = StyleSheet.create({
     height: 40,
     marginVertical: 5,
     resizeMode: 'contain',
+  },
+  confirmButton: {
+    marginTop: 20,
   },
 });
 

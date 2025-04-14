@@ -5,6 +5,7 @@ import {
   TextInput,
   Button,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
@@ -26,7 +27,7 @@ const HomeScreen = () => {
 
   const handleSearch = async () => {
     if (!postalCode.trim()) {
-      alert('Please enter a valid postal code.');
+      Alert.alert('Missing Input', 'Please enter a valid postal code.');
       return;
     }
 

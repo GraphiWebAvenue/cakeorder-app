@@ -1,15 +1,28 @@
-
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import { useUser } from '../context/UserContext';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+// 📦 Stack Params
+type RootStackParamList = {
+  SummaryOrder: any;
+};
 
 const UserLoginRegisterScreen = () => {
   const { user, setUser, logout } = useUser();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute();
-  const [orderParams, setOrderParams] = useState(route.params || {});
+  const orderParams = route.params || {};
 
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -28,10 +41,10 @@ const UserLoginRegisterScreen = () => {
         setUser(res.data.user);
         navigation.navigate('SummaryOrder', orderParams);
       } else {
-        alert(res.data.message || 'Login failed');
+        Alert.alert('Login failed', res.data.message || 'Please try again');
       }
     } catch (err) {
-      alert('Login error');
+      Alert.alert('Login error', 'Unable to login. Try again later.');
     }
   };
 
@@ -41,16 +54,16 @@ const UserLoginRegisterScreen = () => {
         name,
         email,
         password,
-        phone_number: phone
+        phone_number: phone,
       });
       if (res.data.success) {
         setUser(res.data.user);
         navigation.navigate('SummaryOrder', orderParams);
       } else {
-        alert(res.data.message || 'Registration failed');
+        Alert.alert('Registration failed', res.data.message || 'Please try again');
       }
     } catch (err) {
-      alert('Registration error');
+      Alert.alert('Registration error', 'Unable to register. Try again later.');
     }
   };
 
@@ -59,9 +72,9 @@ const UserLoginRegisterScreen = () => {
       <View style={styles.container}>
         <Text style={styles.title}>Are you logged in as {user.name || user.email}?</Text>
         {user.phone_number && (
-          <Text style={{ fontSize: 16, marginBottom: 12 }}>Phone: {user.phone_number}</Text>
+          <Text style={styles.phone}>Phone: {user.phone_number}</Text>
         )}
-        <View style={{ marginBottom: 12 }}>
+        <View style={styles.confirmButton}>
           <Button title="Yes, continue" onPress={handleConfirm} />
         </View>
         <Button title="No, log out" color="#cc0000" onPress={logout} />
@@ -72,10 +85,16 @@ const UserLoginRegisterScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.tabContainer}>
-        <TouchableOpacity onPress={() => setActiveTab('login')} style={[styles.tab, activeTab === 'login' && styles.activeTab]}>
+        <TouchableOpacity
+          onPress={() => setActiveTab('login')}
+          style={[styles.tab, activeTab === 'login' && styles.activeTab]}
+        >
           <Text>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setActiveTab('register')} style={[styles.tab, activeTab === 'register' && styles.activeTab]}>
+        <TouchableOpacity
+          onPress={() => setActiveTab('register')}
+          style={[styles.tab, activeTab === 'register' && styles.activeTab]}
+        >
           <Text>Register</Text>
         </TouchableOpacity>
       </View>
@@ -85,7 +104,12 @@ const UserLoginRegisterScreen = () => {
           <Text>Email:</Text>
           <TextInput style={styles.input} value={email} onChangeText={setEmail} />
           <Text>Password:</Text>
-          <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
           <Button title="Login" onPress={handleLogin} />
         </View>
       ) : (
@@ -93,11 +117,21 @@ const UserLoginRegisterScreen = () => {
           <Text>Name:</Text>
           <TextInput style={styles.input} value={name} onChangeText={setName} />
           <Text>Phone Number:</Text>
-          <TextInput style={styles.input} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+          <TextInput
+            style={styles.input}
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
           <Text>Email:</Text>
           <TextInput style={styles.input} value={email} onChangeText={setEmail} />
           <Text>Password:</Text>
-          <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
           <Button title="Register" onPress={handleRegister} />
         </View>
       )}
@@ -116,6 +150,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 12,
   },
+  phone: { fontSize: 16, marginBottom: 12 },
+  confirmButton: { marginBottom: 12 },
   tabContainer: { flexDirection: 'row', justifyContent: 'center', marginBottom: 10 },
   tab: {
     paddingVertical: 10,

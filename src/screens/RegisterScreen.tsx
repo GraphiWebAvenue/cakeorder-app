@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,18 @@ import {
   Alert,
 } from 'react-native';
 import axios from 'axios';
-import { UserContext } from '../context/UserContext';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useUser } from '../context/UserContext';
+
+type RootStackParamList = {
+  Home: undefined;
+  Login: undefined;
+};
 
 const RegisterScreen = () => {
-  const { setUser } = useContext(UserContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { setUser } = useUser();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

@@ -1,15 +1,14 @@
-
 import React, {
   createContext,
   useContext,
   useState,
   useEffect,
-  ReactNode
+  ReactNode,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // نوع اطلاعات کاربر
-type User = {
+export type User = {
   id: number;
   name: string;
   email: string;
@@ -17,7 +16,7 @@ type User = {
 };
 
 // نوع مقادیر کانتکست
-type UserContextType = {
+export type UserContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
   postalCode: string;
@@ -25,7 +24,7 @@ type UserContextType = {
   logout: () => void;
 };
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<User | null>(null);
@@ -46,10 +45,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     loadUser();
   }, []);
 
-  const setUser = async (user: User | null) => {
-    setUserState(user);
-    if (user) {
-      await AsyncStorage.setItem('user', JSON.stringify(user));
+  const setUser = async (newUser: User | null) => {
+    setUserState(newUser);
+    if (newUser) {
+      await AsyncStorage.setItem('user', JSON.stringify(newUser));
     } else {
       await AsyncStorage.removeItem('user');
     }

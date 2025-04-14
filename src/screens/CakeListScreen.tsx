@@ -11,6 +11,7 @@ import {
 import axios from 'axios';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 
+// Types
 type RootStackParamList = {
   CakeList: { branchId: number };
   CakeDetails: { cake: Cake };
@@ -30,9 +31,9 @@ type Cake = {
 const CakeListScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'CakeList'>>();
   const { branchId } = route.params;
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
-  const [cakes, setCakes] = useState<Cake[]>([]);
+  const [cakesList, setCakesList] = useState<Cake[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,14 +45,14 @@ const CakeListScreen = () => {
         });
 
         if (response.data.cakes) {
-          const cakes = response.data.cakes.map((cake: any) => ({
+          const parsedCakes = response.data.cakes.map((cake: any) => ({
             ...cake,
             base_price: Number(cake.base_price ?? 0),
             per_slice_price: Number(cake.price_per_slice ?? 0),
             half_price: Number(cake.price_half ?? 0),
             is_per_slice_enabled: Number(cake.is_per_slice_enabled ?? 0),
           }));
-          setCakes(cakes);
+          setCakesList(parsedCakes);
         } else {
           setError(response.data.message || 'No cakes found.');
         }
@@ -66,21 +67,21 @@ const CakeListScreen = () => {
   }, [branchId]);
 
   if (loading) {
-    return <ActivityIndicator style={{ marginTop: 50 }} size="large" />;
+    return <ActivityIndicator style={styles.loader} size="large" />;
   }
 
   if (error) {
     return <Text style={styles.error}>{error}</Text>;
   }
 
-  if (cakes.length === 0) {
+  if (cakesList.length === 0) {
     return <Text style={styles.empty}>No cakes available in this branch.</Text>;
   }
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={cakes}
+        data={cakesList}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => navigation.navigate('CakeDetails', { cake: item })}>
@@ -110,6 +111,7 @@ const CakeListScreen = () => {
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
+  loader: { marginTop: 50 },
   card: {
     backgroundColor: '#fff',
     borderRadius: 8,

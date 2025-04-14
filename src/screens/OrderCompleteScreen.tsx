@@ -4,17 +4,21 @@ import {
   Text,
   StyleSheet,
   Button,
-  Clipboard,
   Alert,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+
+type RootStackParamList = {
+  OrderComplete: { trackingCode: string };
+  Home: undefined;
+};
 
 const OrderCompleteScreen = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const params = route?.params || {};
-  const trackingCode = params.trackingCode || 'N/A';
+  const navigation = useNavigation<any>();
+  const route = useRoute<RouteProp<RootStackParamList, 'OrderComplete'>>();
+  const trackingCode = route.params?.trackingCode || 'N/A';
 
   const copyToClipboard = () => {
     Clipboard.setString(trackingCode);
@@ -31,7 +35,7 @@ const OrderCompleteScreen = () => {
         <Text style={styles.copyHint}>Tap to copy</Text>
       </TouchableOpacity>
 
-      <View style={{ marginTop: 30 }}>
+      <View style={styles.buttonWrapper}>
         <Button title="Back to Home" onPress={() => navigation.navigate('Home')} />
       </View>
     </View>
@@ -49,6 +53,9 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   copyHint: { fontSize: 14, color: '#888' },
+  buttonWrapper: {
+    marginTop: 30,
+  },
 });
 
 export default OrderCompleteScreen;

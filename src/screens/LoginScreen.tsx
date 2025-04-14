@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,20 @@ import {
   Alert,
 } from 'react-native';
 import axios from 'axios';
-import { UserContext } from '../context/UserContext';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useUser } from '../context/UserContext';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+
+type RootStackParamList = {
+  Login: { redirectTo?: 'Home' | 'Register' };
+  Register: undefined;
+  Home: undefined;
+};
 
 const LoginScreen = () => {
-  const { setUser } = useContext(UserContext);
-  const navigation = useNavigation();
-  const route = useRoute();
-  const redirectTo = route.params?.redirectTo || 'Home';
+  const { setUser } = useUser();
+  const navigation = useNavigation<any>();
+  const route = useRoute<RouteProp<RootStackParamList, 'Login'>>();
+  const redirectTo = route.params?.redirectTo ?? 'Home';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,7 +40,12 @@ const LoginScreen = () => {
 
       if (response.data.success) {
         setUser(response.data.user);
-        navigation.replace(redirectTo);
+
+        if (redirectTo === 'Home' || redirectTo === 'Register') {
+          navigation.replace(redirectTo);
+        } else {
+          navigation.replace('Home');
+        }
       } else {
         Alert.alert('Login failed', response.data.message || 'Invalid credentials');
       }
@@ -67,7 +78,7 @@ const LoginScreen = () => {
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}> 
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.link}>Don't have an account? Register</Text>
       </TouchableOpacity>
     </View>

@@ -8,12 +8,30 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 
+// Define types for route params
+interface Cake {
+  id: number;
+  name: string;
+  description: string;
+  base_price: number;
+  per_slice_price?: number;
+  half_price?: number;
+  image_url?: string;
+  is_per_slice_enabled: number;
+}
+
+interface RouteParams {
+  cake: Cake;
+}
+
+type CakeDetailsRouteProp = RouteProp<{ params: RouteParams }, 'params'>;
+
 const CakeDetailsScreen = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
+  const route = useRoute<CakeDetailsRouteProp>();
+  const navigation = useNavigation<any>();
   const { addToCart } = useCart();
   const { cake } = route.params;
 
@@ -33,7 +51,7 @@ const CakeDetailsScreen = () => {
 
   const handleAddToCart = () => {
     const price = getPrice();
-    const qty = parseInt(quantity);
+    const qty = parseInt(quantity, 10);
 
     if (!price || isNaN(qty) || qty < 1) {
       Alert.alert('Error', 'Please select a valid quantity and portion.');

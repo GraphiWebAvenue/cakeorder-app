@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const CartScreen = () => {
   const { cartItems, removeFromCart, totalPrice, clearCart } = useCart();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   const handleCheckout = () => {
     if (cartItems.length === 0) {
@@ -34,7 +34,7 @@ const CartScreen = () => {
             <Text style={styles.text}>
               {item.quantity} × €{item.price.toFixed(2)} = €{(item.price * item.quantity).toFixed(2)}
             </Text>
-            <TouchableOpacity onPress={() => removeFromCart(item.id)}>
+            <TouchableOpacity onPress={() => removeFromCart(item.id, item.portion)}>
               <Text style={styles.remove}>❌ Remove</Text>
             </TouchableOpacity>
           </View>

@@ -6,6 +6,7 @@ import {
   TextInput,
   Button,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { useUser } from '../context/UserContext';
 import { useCart } from '../context/CartContext';
@@ -15,7 +16,7 @@ import axios from 'axios';
 const DeliveryMethodScreen = () => {
   const { postalCode } = useUser();
   const { cartItems, totalPrice } = useCart();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const [method, setMethod] = useState<'pickup' | 'delivery'>('pickup');
 
   const [city, setCity] = useState('');
@@ -25,7 +26,7 @@ const DeliveryMethodScreen = () => {
   const [extraInfo, setExtraInfo] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
-  const [branchId, setBranchId] = useState(null);
+  const [branchId, setBranchId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -54,7 +55,7 @@ const DeliveryMethodScreen = () => {
 
   const handleContinue = () => {
     if (!branchId) {
-      alert('Unable to determine nearest branch.');
+      Alert.alert('Error', 'Unable to determine nearest branch.');
       return;
     }
 
@@ -69,7 +70,7 @@ const DeliveryMethodScreen = () => {
 
     if (method === 'pickup') {
       if (!selectedDate || !selectedTime) {
-        alert('Please select date and time for pickup.');
+        Alert.alert('Missing Info', 'Please select date and time for pickup.');
         return;
       }
 
@@ -80,7 +81,7 @@ const DeliveryMethodScreen = () => {
       });
     } else {
       if (!province || !city || !street || !houseNumber) {
-        alert('Please fill in all address fields.');
+        Alert.alert('Missing Info', 'Please fill in all address fields.');
         return;
       }
 
