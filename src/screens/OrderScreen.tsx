@@ -34,9 +34,10 @@ const OrderScreen = () => {
       return;
     }
 
-    const address = method === 'delivery'
-      ? `Province: ${province}, City: ${city}, Street: ${street_address}, No: ${house_number}, Extra: ${extra_details}`
-      : '';
+    const address =
+      method === 'delivery'
+        ? `Province: ${province}, City: ${city}, Street: ${street_address}, No: ${house_number}, Extra: ${extra_details}`
+        : '';
 
     try {
       const response = await axios.post('https://cakeorder.shop/api/orders.php', {
@@ -82,7 +83,9 @@ const OrderScreen = () => {
           <Text style={styles.label}>City: {city}</Text>
           <Text style={styles.label}>Street: {street_address}</Text>
           <Text style={styles.label}>House No: {house_number}</Text>
-          {extra_details ? <Text style={styles.label}>Extra: {extra_details}</Text> : null}
+          {extra_details ? (
+            <Text style={styles.label}>Extra: {extra_details}</Text>
+          ) : null}
         </>
       )}
 

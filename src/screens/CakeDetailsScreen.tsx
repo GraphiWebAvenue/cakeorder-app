@@ -8,7 +8,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 
 const CakeDetailsScreen = () => {
@@ -33,23 +33,32 @@ const CakeDetailsScreen = () => {
 
   const handleAddToCart = () => {
     const price = getPrice();
-    if (!price) {
-      Alert.alert('Invalid selection', 'No price found for this portion.');
+    const qty = parseInt(quantity);
+
+    if (!price || isNaN(qty) || qty < 1) {
+      Alert.alert('Error', 'Please select a valid quantity and portion.');
       return;
     }
+
     addToCart({
       id: cake.id,
       name: cake.name,
       portion: selectedOption,
       price,
-      quantity: parseInt(quantity),
+      quantity: qty,
     });
-    Alert.alert('Added to cart', `${quantity} x ${selectedOption}`);
+
+    Alert.alert('Added to cart', `${qty} x ${selectedOption}`, [
+      { text: 'Go to Cart', onPress: () => navigation.navigate('Cart') },
+      { text: 'OK' },
+    ]);
   };
 
   return (
     <View style={styles.container}>
-      {cake.image_url && <Image source={{ uri: cake.image_url }} style={styles.image} />}
+      {cake.image_url && (
+        <Image source={{ uri: cake.image_url }} style={styles.image} />
+      )}
       <Text style={styles.name}>{cake.name}</Text>
       <Text style={styles.description}>{cake.description}</Text>
 
@@ -57,15 +66,33 @@ const CakeDetailsScreen = () => {
       <View style={styles.optionsRow}>
         {cake.is_per_slice_enabled === 1 && (
           <>
-            <TouchableOpacity onPress={() => setSelectedOption('slice')} style={[styles.optionBtn, selectedOption === 'slice' && styles.selected]}>
+            <TouchableOpacity
+              onPress={() => setSelectedOption('slice')}
+              style={[
+                styles.optionBtn,
+                selectedOption === 'slice' && styles.selected,
+              ]}
+            >
               <Text>🍰 Slice (€{(cake.per_slice_price ?? 0).toFixed(2)})</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setSelectedOption('half')} style={[styles.optionBtn, selectedOption === 'half' && styles.selected]}>
+            <TouchableOpacity
+              onPress={() => setSelectedOption('half')}
+              style={[
+                styles.optionBtn,
+                selectedOption === 'half' && styles.selected,
+              ]}
+            >
               <Text>🌓 Half (€{(cake.half_price ?? 0).toFixed(2)})</Text>
             </TouchableOpacity>
           </>
         )}
-        <TouchableOpacity onPress={() => setSelectedOption('whole')} style={[styles.optionBtn, selectedOption === 'whole' && styles.selected]}>
+        <TouchableOpacity
+          onPress={() => setSelectedOption('whole')}
+          style={[
+            styles.optionBtn,
+            selectedOption === 'whole' && styles.selected,
+          ]}
+        >
           <Text>🎂 Whole (€{(cake.base_price ?? 0).toFixed(2)})</Text>
         </TouchableOpacity>
       </View>
@@ -82,7 +109,10 @@ const CakeDetailsScreen = () => {
         <Text style={styles.addButtonText}>Add to Cart</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.viewCart} onPress={() => navigation.navigate('Cart')}>
+      <TouchableOpacity
+        style={styles.viewCart}
+        onPress={() => navigation.navigate('Cart')}
+      >
         <Text style={styles.viewCartText}>🛒 View Cart</Text>
       </TouchableOpacity>
     </View>

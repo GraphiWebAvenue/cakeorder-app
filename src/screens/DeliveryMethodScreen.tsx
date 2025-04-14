@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,13 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useUser } from '../context/UserContext';
+import { useCart } from '../context/CartContext';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
 const DeliveryMethodScreen = () => {
   const { postalCode } = useUser();
+  const { cartItems, totalPrice } = useCart();
   const navigation = useNavigation();
   const [method, setMethod] = useState<'pickup' | 'delivery'>('pickup');
 
@@ -22,16 +25,56 @@ const DeliveryMethodScreen = () => {
   const [extraInfo, setExtraInfo] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [branchId, setBranchId] = useState(null);
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        const res = await axios.post('https://cakeorder.shop/api/get_city_by_postal.php', {
+          postal_code: postalCode,
+        });
+        if (res.data.success) {
+          setCity(res.data.city);
+          setProvince(res.data.province);
+          setBranchId(res.data.branch_id);
+        } else {
+          setCity('');
+          setProvince('');
+          setBranchId(null);
+        }
+      } catch (error) {
+        console.error('Error fetching city/province:', error);
+      }
+    };
+
+    if (postalCode) {
+      fetchLocation();
+    }
+  }, [postalCode]);
 
   const handleContinue = () => {
+    if (!branchId) {
+      alert('Unable to determine nearest branch.');
+      return;
+    }
+
+    const baseParams = {
+      method,
+      delivery_method: method,
+      postal_code: postalCode,
+      items: cartItems,
+      total_price: totalPrice,
+      branch_id: branchId,
+    };
+
     if (method === 'pickup') {
       if (!selectedDate || !selectedTime) {
         alert('Please select date and time for pickup.');
         return;
       }
 
-      navigation.navigate('Order', {
-        method: 'pickup',
+      navigation.navigate('UserLoginRegister', {
+        ...baseParams,
         delivery_date: selectedDate,
         delivery_time: selectedTime,
       });
@@ -41,14 +84,13 @@ const DeliveryMethodScreen = () => {
         return;
       }
 
-      navigation.navigate('Order', {
-        method: 'delivery',
+      navigation.navigate('UserLoginRegister', {
+        ...baseParams,
         province,
         city,
         street_address: street,
         house_number: houseNumber,
         extra_details: extraInfo,
-        postal_code: postalCode,
       });
     }
   };
@@ -83,9 +125,19 @@ const DeliveryMethodScreen = () => {
             selectTextOnFocus={false}
           />
           <Text>City:</Text>
-          <TextInput style={styles.input} value={city} onChangeText={setCity} />
+          <TextInput
+            style={[styles.input, styles.disabled]}
+            value={city}
+            editable={false}
+            selectTextOnFocus={false}
+          />
           <Text>Province:</Text>
-          <TextInput style={styles.input} value={province} onChangeText={setProvince} />
+          <TextInput
+            style={[styles.input, styles.disabled]}
+            value={province}
+            editable={false}
+            selectTextOnFocus={false}
+          />
           <Text>Street Address:</Text>
           <TextInput style={styles.input} value={street} onChangeText={setStreet} />
           <Text>House Number:</Text>

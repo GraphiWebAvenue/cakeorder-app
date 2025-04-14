@@ -19,8 +19,7 @@ const CartScreen = () => {
       Alert.alert('Cart is empty', 'Please add items before continuing.');
       return;
     }
-    // TODO: Check login here before continuing
-    navigation.navigate('DeliveryMethod'); // Placeholder for next screen
+    navigation.navigate('DeliveryMethod');
   };
 
   return (
