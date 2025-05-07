@@ -10,12 +10,14 @@ import {
 } from 'react-native';
 import { useUser } from '../context/UserContext';
 import { useCart } from '../context/CartContext';
+import { useOrder } from '../context/OrderContext';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
 const DeliveryMethodScreen = () => {
-  const { postalCode } = useUser();
+  const { postalCode, user } = useUser();
   const { cartItems, totalPrice } = useCart();
+  const { setOrderDetails } = useOrder();
   const navigation = useNavigation<any>();
   const [method, setMethod] = useState<'pickup' | 'delivery'>('pickup');
 
@@ -29,6 +31,11 @@ const DeliveryMethodScreen = () => {
   const [branchId, setBranchId] = useState<number | null>(null);
 
   useEffect(() => {
+    // بررسی وضعیت لاگین هنگام ورود
+    if (!user || !user.id) {
+      navigation.navigate('UserLoginRegister');
+    }
+
     const fetchLocation = async () => {
       try {
         const res = await axios.post('https://cakeorder.shop/api/get_city_by_postal.php', {
@@ -51,7 +58,7 @@ const DeliveryMethodScreen = () => {
     if (postalCode) {
       fetchLocation();
     }
-  }, [postalCode]);
+  }, [postalCode, user, navigation]);
 
   const handleContinue = () => {
     if (!branchId) {
@@ -74,18 +81,22 @@ const DeliveryMethodScreen = () => {
         return;
       }
 
-      navigation.navigate('UserLoginRegister', {
+      // ذخیره اطلاعات سفارش در Context
+      setOrderDetails({
         ...baseParams,
         delivery_date: selectedDate,
         delivery_time: selectedTime,
       });
+
+      navigation.navigate('SummaryOrder');
     } else {
       if (!province || !city || !street || !houseNumber) {
         Alert.alert('Missing Info', 'Please fill in all address fields.');
         return;
       }
 
-      navigation.navigate('UserLoginRegister', {
+      // ذخیره اطلاعات سفارش در Context
+      setOrderDetails({
         ...baseParams,
         province,
         city,
@@ -93,6 +104,8 @@ const DeliveryMethodScreen = () => {
         house_number: houseNumber,
         extra_details: extraInfo,
       });
+
+      navigation.navigate('SummaryOrder');
     }
   };
 

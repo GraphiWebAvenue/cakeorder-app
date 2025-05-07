@@ -1,76 +1,72 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// نوع هر آیتم در سبد خرید
-interface CartItem {
+// تعریف نوع آیتم سبد خرید
+type CartItem = {
   id: number;
   name: string;
-  quantity: number;
-  price: number;
   portion: 'slice' | 'half' | 'whole';
-}
-
-// نوع context
-interface CartContextType {
-  cartItems: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (itemId: number, portion: string) => void;
-  clearCart: () => void;
-  totalPrice: number;
-}
-
-// ایجاد کانتکست
-export const CartContext = createContext<CartContextType | undefined>(undefined);
-
-// کامپوننت Provider برای استفاده در App.tsx
-export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-  const addToCart = (item: CartItem) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find(
-        (i) => i.id === item.id && i.portion === item.portion
-      );
-      if (existingItem) {
-        return prevItems.map((i) =>
-          i.id === item.id && i.portion === item.portion
-            ? { ...i, quantity: i.quantity + item.quantity }
-            : i
-        );
-      } else {
-        return [...prevItems, item];
-      }
-    });
-  };
-
-  const removeFromCart = (itemId: number, portion: string) => {
-    setCartItems((prevItems) =>
-      prevItems.filter((item) => !(item.id === itemId && item.portion === portion))
-    );
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
-  };
-
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-
-  return (
-    <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, clearCart, totalPrice }}
-    >
-      {children}
-    </CartContext.Provider>
-  );
+  price: number;
+  quantity: number;
+  image_url?: string;
 };
 
-// Hook برای استفاده راحت در کامپوننت‌ها
+// نوع Context برای مدیریت سبد خرید
+type CartContextType = {
+  cartItems: CartItem[];
+  addToCart: (item: CartItem) => void;
+  removeFromCart: (id: number) => void;
+  clearCart: () => void;
+  totalPrice: number;
+};
+
+// ایجاد Context
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;
+};
+
+export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    const loadCart = async () => {
+      const savedCart = await AsyncStorage.getItem('cartItems');
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart));
+      }
+    };
+    loadCart();
+  }, []);
+
+  const saveCart = (items: CartItem[]) => {
+    setCartItems(items);
+    AsyncStorage.setItem('cartItems', JSON.stringify(items));
+  };
+
+  const addToCart = (item: CartItem) => {
+    saveCart([...cartItems, item]);
+  };
+
+  const removeFromCart = (id: number) => {
+    const updatedCart = cartItems.filter((item) => item.id !== id);
+    saveCart(updatedCart);
+  };
+
+  const clearCart = () => {
+    saveCart([]);
+  };
+
+  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  return (
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, totalPrice }}>
+      {children}
+    </CartContext.Provider>
+  );
 };

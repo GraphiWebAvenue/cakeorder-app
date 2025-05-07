@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,9 @@ import {
   Alert,
 } from 'react-native';
 import { useUser } from '../context/UserContext';
+import { useOrder } from '../context/OrderContext';
 import axios from 'axios';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // 📦 Stack Params
@@ -20,18 +21,23 @@ type RootStackParamList = {
 
 const UserLoginRegisterScreen = () => {
   const { user, setUser, logout } = useUser();
+  const { orderDetails } = useOrder();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const route = useRoute();
-  const orderParams = route.params || {};
-
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
 
+  useEffect(() => {
+    // اگر کاربر لاگین کرده باشد، مستقیماً به صفحه سفارش برود
+    if (user && user.id) {
+      navigation.replace('SummaryOrder', { ...orderDetails });
+    }
+  }, [user, navigation, orderDetails]);
+
   const handleConfirm = () => {
-    navigation.navigate('SummaryOrder', orderParams);
+    navigation.navigate('SummaryOrder', { ...orderDetails });
   };
 
   const handleLogin = async () => {
@@ -39,7 +45,7 @@ const UserLoginRegisterScreen = () => {
       const res = await axios.post('https://cakeorder.shop/api/login.php', { email, password });
       if (res.data.success) {
         setUser(res.data.user);
-        navigation.navigate('SummaryOrder', orderParams);
+        navigation.replace('SummaryOrder', { ...orderDetails });
       } else {
         Alert.alert('Login failed', res.data.message || 'Please try again');
       }
@@ -58,7 +64,7 @@ const UserLoginRegisterScreen = () => {
       });
       if (res.data.success) {
         setUser(res.data.user);
-        navigation.navigate('SummaryOrder', orderParams);
+        navigation.replace('SummaryOrder', { ...orderDetails });
       } else {
         Alert.alert('Registration failed', res.data.message || 'Please try again');
       }
@@ -70,7 +76,7 @@ const UserLoginRegisterScreen = () => {
   if (user && user.id) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Are you logged in as {user.name || user.email}?</Text>
+        <Text style={styles.title}>Logged in as {user.name || user.email}</Text>
         {user.phone_number && (
           <Text style={styles.phone}>Phone: {user.phone_number}</Text>
         )}

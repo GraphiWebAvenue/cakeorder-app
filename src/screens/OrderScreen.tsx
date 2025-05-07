@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Button, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
-import { UserContextType, UserContext } from '../context/UserContext';
+import { useUser } from '../context/UserContext';
 import axios from 'axios';
 
 type RootStackParamList = {
@@ -24,7 +24,7 @@ const OrderScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'Order'>>();
   const navigation = useNavigation<any>();
   const { cartItems, clearCart, totalPrice } = useCart();
-  const { user } = useContext(UserContext) as UserContextType;
+  const { user } = useUser();
 
   const {
     method,
@@ -98,9 +98,7 @@ const OrderScreen = () => {
           <Text style={styles.label}>City: {city}</Text>
           <Text style={styles.label}>Street: {street_address}</Text>
           <Text style={styles.label}>House No: {house_number}</Text>
-          {extra_details ? (
-            <Text style={styles.label}>Extra: {extra_details}</Text>
-          ) : null}
+          {extra_details ? <Text style={styles.label}>Extra: {extra_details}</Text> : null}
         </>
       )}
 

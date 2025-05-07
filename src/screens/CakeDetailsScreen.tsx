@@ -8,32 +8,31 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 
-// Define types for route params
-interface Cake {
+// تعریف دقیق نوع Cake
+type Cake = {
   id: number;
   name: string;
   description: string;
+  image_url?: string;
   base_price: number;
   per_slice_price?: number;
   half_price?: number;
-  image_url?: string;
   is_per_slice_enabled: number;
-}
+};
 
-interface RouteParams {
+// نوع route برای CakeDetailsScreen
+type RouteParams = {
   cake: Cake;
-}
-
-type CakeDetailsRouteProp = RouteProp<{ params: RouteParams }, 'params'>;
+};
 
 const CakeDetailsScreen = () => {
-  const route = useRoute<CakeDetailsRouteProp>();
-  const navigation = useNavigation<any>();
+  const route = useRoute();
+  const { cake } = route.params as RouteParams;  // ✅ تعریف صحیح نوع داده
+  const navigation = useNavigation();
   const { addToCart } = useCart();
-  const { cake } = route.params;
 
   const [selectedOption, setSelectedOption] = useState<'slice' | 'half' | 'whole'>('whole');
   const [quantity, setQuantity] = useState('1');
@@ -51,7 +50,7 @@ const CakeDetailsScreen = () => {
 
   const handleAddToCart = () => {
     const price = getPrice();
-    const qty = parseInt(quantity, 10);
+    const qty = parseInt(quantity, 10);  // ✅ استفاده از رادیوکس
 
     if (!price || isNaN(qty) || qty < 1) {
       Alert.alert('Error', 'Please select a valid quantity and portion.');
@@ -64,10 +63,11 @@ const CakeDetailsScreen = () => {
       portion: selectedOption,
       price,
       quantity: qty,
+      image_url: cake.image_url,  // ✅ اضافه شد
     });
 
     Alert.alert('Added to cart', `${qty} x ${selectedOption}`, [
-      { text: 'Go to Cart', onPress: () => navigation.navigate('Cart') },
+      { text: 'Go to Cart', onPress: () => navigation.navigate('Cart' as never) },  // ✅ اصلاح نوع
       { text: 'OK' },
     ]);
   };
@@ -129,7 +129,7 @@ const CakeDetailsScreen = () => {
 
       <TouchableOpacity
         style={styles.viewCart}
-        onPress={() => navigation.navigate('Cart')}
+        onPress={() => navigation.navigate('Cart' as never)}  // ✅ اصلاح نوع
       >
         <Text style={styles.viewCartText}>🛒 View Cart</Text>
       </TouchableOpacity>
